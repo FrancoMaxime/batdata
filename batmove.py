@@ -4,7 +4,7 @@ import subprocess
 import os
 
 def batmove(csvname):
-    path = '/Storage/' + csvname.split(".csv")[0].replace(" ", "_")
+    path = '/storage/' + csvname.split(".csv")[0].replace(" ", "_")
     try:
         os.mkdir(path)
     except OSError:
@@ -13,8 +13,8 @@ def batmove(csvname):
         print("Successfully created the directory %s " % path)
     
     pathtmp = "/storage/tests/"
-        
-    with open('./result/result_' + csvname) as csv_file, open(path + '/found_' + csvname) as found, open(path + '/not_found_' + csvname) as notfound:
+    
+    with open('./result/result_' + csvname) as csv_file, open(path + '/found_' + csvname, 'w') as found, open(path + '/not_found_' + csvname, 'w') as notfound, open(path + '/duplicate_'+ csvname, 'w') as duplicate:
         csv_reader = csv.DictReader(csv_file, delimiter=',')
         
         csv_found = csv.DictWriter(found, fieldnames=csv_reader.fieldnames)
@@ -22,7 +22,10 @@ def batmove(csvname):
         
         csv_not_found = csv.DictWriter(notfound, fieldnames=csv_reader.fieldnames)
         csv_not_found.writeheader()
-        
+
+        csv_duplicate = csv.DictWriter(duplicate, fieldnames=csv_reader.fieldnames)
+        csv_duplicate.writeheader()
+
         for row in csv_reader:
             name = None
             if 'File' in row:
@@ -31,24 +34,30 @@ def batmove(csvname):
                 name = row['Fichier']
             else:
                 print("ERROR 1 : No column File found")
-                
-            sub = subprocess.Popen("find /storage/ -name'" + name + "'", shell=True, stdout=subprocess.PIPE)
-            ret = sub.stdout.read()
+            if row['Contact'] != 'Secondaire':
+                sub = subprocess.Popen("find /storage/ -name '" + name + "'", shell=True, stdout=subprocess.PIPE)
+                ret = sub.stdout.read()
             
-            if ret == '':
-                print('NOT FOUND FILE : ' + name )
-                csv_not_found.writerow(row)
+                if ret == '':
+                    print('NOT FOUND FILE : ' + name )
+                    csv_not_found.writerow(row)
+                else:
+                    ret = ret.split('\n')
+                    shutil.move(ret[0], pathtmp)
+                    csv_found.writerow(row)
             else:
-                ret = ret.split('\n')
-                shutil.move(ret[0], pathtmp)
-    
+                csv_duplicate.writerow(row)
+
     for x in os.listdir(pathtmp):
         sub = subprocess.Popen("soxi " + pathtmp + x , shell=True, stdout=subprocess.PIPE)
         ret = sub.stdout.read()
         ret = ret.split("\n")
         rate = int(ret[3].split(":")[-1])
-        if rate > 100 000):
+        if rate > 100000:
             rate /= 10
-            
-        sub = subprocess.Popen("sox -r " + str(rate) + " " + pathtmp + x + " " + path + x  , shell=True, stdout=subprocess.PIPE)
+            print("Time Expansion doing ...")
+        sub = subprocess.Popen("sox -r " + str(rate) + " " + pathtmp + x + " " + path + "/" , shell=True, stdout=subprocess.PIPE)
         
+
+
+batmove('LPB2018.csv')
