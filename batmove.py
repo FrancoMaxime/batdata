@@ -14,6 +14,7 @@ def batmove(csvname):
     
     pathtmp = "/storage/tests/"
     
+    print "Finding file : " 
     with open('./result/result_' + csvname) as csv_file, open(path + '/found_' + csvname, 'w') as found, open(path + '/not_found_' + csvname, 'w') as notfound, open(path + '/duplicate_'+ csvname, 'w') as duplicate:
         csv_reader = csv.DictReader(csv_file, delimiter=',')
         
@@ -47,6 +48,7 @@ def batmove(csvname):
                         if 'storage/hd' in ret[0]:
                             shutil.move(ret[0], pathtmp)
                             csv_found.writerow(row)
+                            print "."
                         else:
                             print("ERROR 3 : File found not in hdx!")
                             csv_duplicate.writerow(row)
@@ -55,7 +57,7 @@ def batmove(csvname):
             else:
                 csv_duplicate.writerow(row)
 
-    print("Time Expansion ....")
+    print "Time Expansion : "
     for x in os.listdir(pathtmp):
         sub = subprocess.Popen("soxi " + pathtmp + x , shell=True, stdout=subprocess.PIPE)
         ret = sub.stdout.read()
@@ -65,8 +67,9 @@ def batmove(csvname):
             rate /= 10
             
         sub = subprocess.Popen("sox -r " + str(rate) + " " + pathtmp + x + " " + path + "/" + x , shell=True, stdout=subprocess.PIPE)
-        
-    print("Manage duplicate ....")
+        print "."
+
+    print "Manage duplicate : "
     try:
         os.mkdir(path+"/duplicate")
     except OSError:
@@ -86,8 +89,9 @@ def batmove(csvname):
                 print("ERROR 1 : No column File found")
             if os.path.exists(path + "/" + name):
                 shutil.move(path + "/" + name, path + "/duplicate/" )
-    
+                print "."
         
 
 
-batmove('LPB2018.csv')
+#batmove('LPB2018.csv')
+batmove('Barbalux_2016.csv')
