@@ -43,11 +43,15 @@ def batmove(csvname):
                     csv_not_found.writerow(row)
                 else:
                     ret = ret.split('\n')
-                    if 'storage/hd' in ret[0] and '/storage/hd4/Suivi automatis' not in ret[0]:
-                        shutil.move(ret[0], pathtmp)
-                        csv_found.writerow(row)
+                    if not os.exists(pathtmp + x):
+                        if 'storage/hd' in ret[0]:
+                            shutil.move(ret[0], pathtmp)
+                            csv_found.writerow(row)
+                        else:
+                            print("ERROR 3 : File found not in hdx!")
+                            csv_duplicate.writerow(row)
                     else:
-                        csv_duplicate.writerow(row)
+                            csv_duplicate.writerow(row)
             else:
                 csv_duplicate.writerow(row)
 
