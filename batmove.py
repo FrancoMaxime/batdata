@@ -43,7 +43,7 @@ def batmove(csvname):
                     csv_not_found.writerow(row)
                 else:
                     ret = ret.split('\n')
-                    if not os.exists(pathtmp + x):
+                    if not os.path.exists(pathtmp + name):
                         if 'storage/hd' in ret[0]:
                             shutil.move(ret[0], pathtmp)
                             csv_found.writerow(row)
