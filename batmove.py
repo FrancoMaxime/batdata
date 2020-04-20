@@ -55,6 +55,7 @@ def batmove(csvname):
             else:
                 csv_duplicate.writerow(row)
 
+    print("Time Expansion ....")
     for x in os.listdir(pathtmp):
         sub = subprocess.Popen("soxi " + pathtmp + x , shell=True, stdout=subprocess.PIPE)
         ret = sub.stdout.read()
@@ -62,8 +63,30 @@ def batmove(csvname):
         rate = int(ret[3].split(":")[-1])
         if rate > 100000:
             rate /= 10
-            print("Time Expansion doing ...")
+            
         sub = subprocess.Popen("sox -r " + str(rate) + " " + pathtmp + x + " " + path + "/" + x , shell=True, stdout=subprocess.PIPE)
+        
+    print("Manage duplicate ....")
+    try:
+        os.mkdir(path+"/duplicate")
+    except OSError:
+        print("ERROR 0 : Creation of the directory %s failed" % path)
+    else:
+        print("Successfully created the directory %s " % path)
+        
+    with open(path + '/duplicate_'+ csvname) as duplicate:
+        csv_duplicate = csv.DictReader(duplicate, delimiter=',')
+        for row in csv_duplicate:
+            name = None
+            if 'File' in row:
+                name = row['File']
+            elif 'Fichier' in row:
+                name = row['Fichier']
+            else:
+                print("ERROR 1 : No column File found")
+            if os.path.exists(path + "/" + name):
+                shutil.move(path + "/" + name, path + "/duplicate/" )
+    
         
 
 
