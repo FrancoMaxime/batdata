@@ -43,8 +43,11 @@ def batmove(csvname):
                     csv_not_found.writerow(row)
                 else:
                     ret = ret.split('\n')
-                    shutil.move(ret[0], pathtmp)
-                    csv_found.writerow(row)
+                    if 'storage/hd' in ret[0] and '/storage/hd4/Suivi automatis' not in ret[0]:
+                        shutil.move(ret[0], pathtmp)
+                        csv_found.writerow(row)
+                    else:
+                        csv_duplicate.writerow(row)
             else:
                 csv_duplicate.writerow(row)
 
@@ -56,7 +59,7 @@ def batmove(csvname):
         if rate > 100000:
             rate /= 10
             print("Time Expansion doing ...")
-        sub = subprocess.Popen("sox -r " + str(rate) + " " + pathtmp + x + " " + path + "/" , shell=True, stdout=subprocess.PIPE)
+        sub = subprocess.Popen("sox -r " + str(rate) + " " + pathtmp + x + " " + path + "/" + x , shell=True, stdout=subprocess.PIPE)
         
 
 
